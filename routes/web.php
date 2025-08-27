@@ -1,45 +1,42 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+use App\Http\Controllers\Admin\AdminHomeController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\UserController;
+use Rap2hpoutre\LaravelLogViewer\LogViewerController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login'); // Breeze login page
 });
 
-Auth::routes();
 
-Route::get('/home','HomeController@index')->name('home');
+Route::middleware('auth')->prefix('admin')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-Route::group(['prefix' => 'admin', 'namespace' => 'Admin','middleware' => 'auth'],function (){
+    // Dashboard
+        Route::get('dashboard', [AdminHomeController::class, 'index'])->name('admin.dashboard');
 
-    //dashboard
-    Route::get('dashboard', 'AdminHomeController@index')->name('admin.dashboard');
+        // Settings
+        Route::get('settings', [SettingController::class, 'index'])->name('admin.setting');
+        Route::post('settings/store', [SettingController::class, 'store'])->name('admin.setting.store');
 
-    //Setting
-    Route::get('settings', 'SettingController@index')->name('admin.setting');
-    Route::post('settings/store', 'SettingController@store')->name('admin.setting.store');
+        // Profile
+        Route::get('profile',[AdminUserController::class,'profile'])->name('admin.profile');
+        Route::post('profile',[AdminUserController::class,'profileUpdate'])->name('admin.upadte');
 
-    //profile
-    Route::get('profile','AdminUserController@profile')->name('admin.profile');
-    Route::post('profile','AdminUserController@profileUpdate')->name('admin.upadte');
+        // Users
+        Route::resource('user', UserController::class);
 
-    //user
-    Route::resource('user','UserController'); 
+        // Admin users
+        Route::resource('admin-user', AdminUserController::class);
 
-    //admin
-    Route::resource('admin-user','AdminUserController'); 
-
-    //logs
-    Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
+        // Logs
+        Route::get('logs', [LogViewerController::class, 'index']);
 });
+
+require __DIR__.'/auth.php';

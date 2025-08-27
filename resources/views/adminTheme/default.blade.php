@@ -13,7 +13,6 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700">
   @include('adminTheme.style')
   @yield('style')
-  @laravelPWA
 </head>
 <body>
   <!-- Sidenav -->
